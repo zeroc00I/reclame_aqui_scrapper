@@ -6,7 +6,7 @@ requests.packages.urllib3.disable_warnings()
 
 def menu():
     parser = optparse.OptionParser()
-    parser.add_option('-t', '--threads', dest="threads", help='100',default=5)
+    parser.add_option('-t', '--threads',type=int, dest="threads", help='100',default=5)
     parser.add_option('-i', '--company_id', dest="company_id", help='1337')
     parser.add_option('-o', '--output', dest="output", help='output.txt')
 
@@ -25,7 +25,7 @@ class Reclame_aqui_dump():
 		self.options = defined_options
 		self.fetched_complains = 0
 		self.status_error = False
-		self.company_id_range = list(range(0,2000,100))
+		self.company_id_range = list(range(0,20000,100))
 		self.dump()
 
 	def company_max_value(self):
@@ -79,13 +79,13 @@ class Reclame_aqui_dump():
 			exit()
 		else:
 			self.fetched_complains += len(reclamacoes["data"])
-			print("[+]  Reclamações coletadas: {}".format(self.fetched_complains))
+			print("[+]  Extraindo reclamações coletadas ... [ID] {}".format(company_id_range))
 			for claim in reclamacoes["data"]:
 				text = "[Descrição] {}".format(claim["description"])
 				file.write(text+" \n")
 
 	def dump(self):
-		fire = multiprocessing.Pool(3)
+		fire = multiprocessing.Pool(self.options.threads)
 		try:
 			fire.map(
 				self.worker, self.company_id_range
