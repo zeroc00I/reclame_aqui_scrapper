@@ -17,14 +17,15 @@ def menu():
     	print("[-] Exiting...")
     	exit()
 
-    globals().update(locals())
+    return options
 
 class Reclame_aqui_dump():
 
-	def __init__(self):
+	def __init__(self,defined_options):
+		self.options = defined_options
 		self.fetched_complains = 0
 		self.status_error = False
-		self.company_id_range = list(range(1,3000))
+		self.company_id_range = list(range(0,2000,100))
 		self.dump()
 
 	def company_max_value(self):
@@ -35,8 +36,8 @@ class Reclame_aqui_dump():
 		try:
 			s = requests.Session()
 			proxy_servers = {
-			'http' : 'http://127.0.0.1:8081',
-			'https' : 'http://127.0.0.1:8081'
+			'http' : 'http://127.0.0.1:8088',
+			'https' : 'http://127.0.0.1:8088'
 			}
 			s.proxies = proxy_servers
 			s.timeout=5
@@ -64,28 +65,26 @@ class Reclame_aqui_dump():
 		  self.status_error = True
 		return self.request.text
 
-	def worker(self,company_id):
-		file = open("reclamacoes_"+options.company_id, "a")  # append mode
+	def worker(self,company_id_range):
+		file = open("reclamacoes_"+self.options.company_id, "a")  # append mode
+		url = "https://iosearch.reclameaqui.com.br/raichu-io-site-search-v1/complains/?company={}&index={}&offset=100&order=created&orderType=desc".format(self.options.company_id,company_id_range)
 
-		for index in range(0,2000,100):
-			url = "https://iosearch.reclameaqui.com.br/raichu-io-site-search-v1/complains/?company={}&index={}&offset=100&order=created&orderType=desc".format(company_id,index)
-			reclamacoes = json.loads(self.get(url))
-			there_is_some_company_complain = bool(len(reclamacoes["data"]))
+		reclamacoes = json.loads(self.get(url))
+		there_is_some_company_complain = bool(len(reclamacoes["data"]))
 
-			if not there_is_some_company_complain:
+		if not there_is_some_company_complain:
 
-				print("[!] Reclaims not found on offset {}".format(offset))
-				print("[-] Exiting...")
-				exit()
-			else:
-				self.fetched_complains += len(reclamacoes["data"])
-				print("[+]  Reclamações coletadas: {}".format(fetched_complains))
-				for claim in reclamacoes["data"]:
-					text = "[Descrição] {}".format(claim["description"])
-					file.write(text+" \n")
+			print("[!] Reclaims not found on offset {}".format(offset))
+			print("[-] Exiting...")
+			exit()
+		else:
+			self.fetched_complains += len(reclamacoes["data"])
+			print("[+]  Reclamações coletadas: {}".format(self.fetched_complains))
+			for claim in reclamacoes["data"]:
+				text = "[Descrição] {}".format(claim["description"])
+				file.write(text+" \n")
 
 	def dump(self):
-		menu()
 		fire = multiprocessing.Pool(3)
 		try:
 			fire.map(
@@ -101,7 +100,8 @@ class Reclame_aqui_dump():
 
 
 def main():
-	result = Reclame_aqui_dump()
+	defined_options = menu()
+	Reclame_aqui_dump(defined_options)
 
 if __name__ == "__main__":
 	main()
