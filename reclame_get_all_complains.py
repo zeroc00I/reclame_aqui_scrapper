@@ -28,10 +28,6 @@ class Reclame_aqui_dump():
 		self.company_id_range = list(range(0,20000,100))
 		self.dump()
 
-	def company_max_value(self):
-		# TODO: Checar se existe empresas novas
-		return 114830
-
 	def get(self,url):
 		try:
 			s = requests.Session()
