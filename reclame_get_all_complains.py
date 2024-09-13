@@ -25,7 +25,7 @@ class Reclame_aqui_dump():
 		self.options = defined_options
 		self.fetched_complains = 0
 		self.status_error = False
-		self.company_id_range = list(range(0,20000,100))
+		self.company_id_range = list(range(0,20000,10)) // igual a 0 devido ao offset definido
 		self.dump()
 
 	def get(self,url):
@@ -63,8 +63,8 @@ class Reclame_aqui_dump():
 
 	def worker(self,company_id_range):
 		file = open("reclamacoes_"+self.options.company_id, "a")  # append mode
-		url = "https://iosearch.reclameaqui.com.br/raichu-io-site-search-v1/complains/?company={}&index={}&offset=100&order=created&orderType=desc".format(self.options.company_id,company_id_range)
-
+		url = "https://iosearch.reclameaqui.com.br/raichu-io-site-search-v1/complains/?company={}&index={}&offset=10&order=created&orderType=desc".format(self.options.company_id,company_id_range)
+		//TODO checar se offset de 100 retorna nada, se não, tentar com de 10 mesmo
 		reclamacoes = json.loads(self.get(url))
 		there_is_some_company_complain = bool(len(reclamacoes["data"]))
 
